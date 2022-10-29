@@ -502,6 +502,15 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
                         OffsetChanger(OffsetAdjust);
                         AssetDatabase.Refresh();
                     }
+
+
+                    if(GUILayout.Button("ABNSC相対変換出力"))
+                    {
+                        if(ABNSCtConv())
+                        {
+                            AssetDatabase.Refresh();
+                        }
+                    }
                     EditorGUI.indentLevel--;
 
                 }
@@ -789,6 +798,78 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
 
 
         File.WriteAllText(path, TextLines);
+    }
+
+    bool ABNSCtConv()
+    {
+        
+        string file = f_SongKeyword.GetValue(gamemanager) + "." + f_SongHard.GetValue(gamemanager);
+        string path = Application.dataPath + "/Resources/SONGS/" + file + ".txt";
+        if(!File.Exists(path))
+        {
+            UnityEngine.Debug.Log("<b><color=#ff0000ff>Error</color>:</b>該当譜面ファイルが見つかりませんでした。");
+            return false;
+        }
+        
+        
+
+        TextAsset textasset = new TextAsset();
+        textasset = Resources.Load("SONGS/" + file, typeof(TextAsset)) as TextAsset;
+        string TextLines = textasset.text;
+        string[] s = TextLines.Split('\n');
+        bool flag = false;
+
+
+        Regex abnsc_check = new Regex(@"^([^>]*>){7}[^>]*<ABNSC>.*");
+
+        for(int i = 0; i < s.Length; i++)
+        {
+            Match m = abnsc_check.Match(s[i]);
+            if(m.Success)
+            {
+                flag = true;
+                string ss = s[i].Replace("<", "");
+                string[] sss = ss.Substring(0, ss.Length - 2).Split('>');
+                if(sss[5].Contains(":"))
+                {
+                    string[] nscs = sss[5].Split(';');
+                    for(int ii=0;ii< nscs.Length;ii++)
+                    {
+                        float ms = float.Parse(sss[2]) - float.Parse(nscs[ii].Split(':')[0]);
+
+                        nscs[ii] = ms + ":" + nscs[ii].Split(':')[1];
+
+                    }
+                    string result = string.Join(";", nscs);
+                    //UnityEngine.Debug.Log(result);
+                    //UnityEngine.Debug.Log(s[i].Replace(sss[5],result));
+                    s[i] = s[i].Replace(sss[5],result);
+                    s[i] = s[i].Replace("<ABNSC>","");
+                }
+
+                
+            }
+        }
+        //UnityEngine.Debug.Log(string.Join("\n", s));
+        
+
+    
+
+        if(!flag)
+        {
+            UnityEngine.Debug.Log("変換対象のノーツが見つかりませんでした");
+            return false;
+        }
+
+
+        FileUtil.ReplaceFile(path, Application.dataPath + "/Resources/BACKUP/" + file + ".txt");
+
+
+
+        File.WriteAllText(path, string.Join("\n", s));
+        UnityEngine.Debug.Log("ABNSCノーツを変換しました");
+        return true;
+
     }
    
 
