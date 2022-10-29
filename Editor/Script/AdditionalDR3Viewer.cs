@@ -857,7 +857,7 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
 
         if(!flag)
         {
-            UnityEngine.Debug.Log("変換対象のノーツが見つかりませんでした");
+            UnityEngine.Debug.Log("<b><color=#ffff00ff>Warn</color>:</b>変換対象のノーツが見つかりませんでした");
             return false;
         }
 
@@ -867,7 +867,7 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
 
 
         File.WriteAllText(path, string.Join("\n", s));
-        UnityEngine.Debug.Log("ABNSCノーツを変換しました");
+        UnityEngine.Debug.Log("<b>Info:</b>ABNSCノーツを変換しました");
         return true;
 
     }
