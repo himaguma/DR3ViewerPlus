@@ -339,6 +339,7 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
                 if(SongKeywordsEX.Length != 0)instance.FixSongHard = (SongHardNum.Length == 0 ? null : SongHardNum[Mathf.Min(SongHardIndex,SongHardNum.Length)]);
             }
 
+            
             QuickSongKeyword();
 
             
@@ -876,7 +877,6 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
     void QuickSongKeyword()
     {
 
-
         //譜面ファイル切り替え
         //OGG
         string dir =Application.dataPath + "/Resources/SONGS";
@@ -914,8 +914,20 @@ public class AdditionalDR3Viewer : EditorWindow, IHasCustomMenu
             if(SongHardNum.Length != 0 && gamemanager != null)f_SongHard.SetValue(gamemanager,int.Parse(SongHardNum[SongHardIndex]));
         }
 
-        if(instance.SongKeyword != SongKeywordsEX[SongKeywordIndex]) instance.SongKeyword = SongKeywordsEX[SongKeywordIndex];
-        if(instance.SongHard != int.Parse(SongHardNum[SongHardIndex]))instance.SongHard = int.Parse(SongHardNum[SongHardIndex]);
+        try
+        {
+            string setkeyword = SongKeywordsEX[Mathf.Clamp(SongKeywordIndex,0,SongKeywordsEX.Length-1)];
+            int    sethard    = int.Parse(SongHardNum[Mathf.Clamp(SongHardIndex,0,SongHardNum.Length-1)]);
+            if(instance.SongKeyword != setkeyword) instance.SongKeyword = setkeyword;
+            if(instance.SongHard != sethard)instance.SongHard = sethard;
+        }
+        catch(Exception e)
+        {
+            UnityEngine.Debug.Log("SongKeywordsEX:"+SongKeywordsEX.Length);
+            UnityEngine.Debug.Log("SongKeywordIndex:"+SongKeywordIndex);
+            UnityEngine.Debug.Log("SongHardNum:"+SongHardNum.Length);
+            UnityEngine.Debug.Log("SongHardIndex:"+SongHardIndex);
+        }
         
     }
 
