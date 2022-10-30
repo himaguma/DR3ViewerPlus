@@ -58,7 +58,7 @@ public class TheOnpuPlus : MonoBehaviour
         }
     }
 
-    void Update()
+    /*void Update()
     {
         
         if(onpuData.isnadnsc)
@@ -73,7 +73,7 @@ public class TheOnpuPlus : MonoBehaviour
                 
 
         }
-    }
+    }*/
 
     bool CheckAlphaKind(int k)
     {
