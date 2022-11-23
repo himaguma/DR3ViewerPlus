@@ -9,10 +9,10 @@ using System.Text.RegularExpressions;
 [DisallowMultipleComponent, DefaultExecutionOrder(8)]
 public class TheOnpuPlus : MonoBehaviour
 {
-    [SerializeField]
+    /*[SerializeField]
     TMP_Text Info;
     [SerializeField]
-    Transform tInfo;
+    Transform tInfo;*/
 
 
     
@@ -42,7 +42,7 @@ public class TheOnpuPlus : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         if(CheckAlphaKind(onpuData.kind)) spriteRenderer.color = new Color(1.0f, 1.0f, 1.0f, 0.01f);
-        if(Info)
+        /*if(Info)
         {
             if(onpuData.nsc != "1")
             Info.text = "<"+ onpuData.nsc + ">";
@@ -55,7 +55,7 @@ public class TheOnpuPlus : MonoBehaviour
                 string[] modes = onpuData.mode.Split('=');
                 tInfo.localPosition = new Vector3(tInfo.localPosition.x,float.Parse(modes[1]),tInfo.localPosition.z);
             }
-        }
+        }*/
     }
 
     /*void Update()

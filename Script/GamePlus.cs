@@ -34,9 +34,15 @@ public class GamePlus : MonoBehaviour
     public int SongHard;
 
 
+    Image SpeedUEffect,SpeedDEffect;
+    bool isAnimating;
+    GamePlus.EffectType CurrentSCType;
+    IEnumerator SCEffectCoroutine;
 
-    //tutorial
-    public TextMeshProUGUI info1,info2;
+
+
+
+    
 
 
 
@@ -121,6 +127,14 @@ public class GamePlus : MonoBehaviour
 
         var gmo = GameObject.Find("GameManager");
         gamemanager = gmo.GetComponent<TheGameManager>();
+
+
+        try
+        {
+            SpeedUEffect = GameObject.Find("BackgroundCanvas/SpeedChangeAnim/ImageSpeedUp").GetComponent<Image>();
+            SpeedDEffect = GameObject.Find("BackgroundCanvas/SpeedChangeAnim/ImageSpeedDown").GetComponent<Image>();
+        }
+        catch{}
 
         //ジャケット読み込み
         Image sprSongImage = (Image)f_sprSongImage.GetValue(gamemanager);
@@ -761,12 +775,65 @@ public class GamePlus : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        info1.text = "speed : ×" + (gamemanager.NoteSpeed/2).ToString("f1");
-        string scd = "SC : ";
-        float scc = ((float)f_CurrentSC.GetValue(gamemanager));
-        if(scc>1.0f) scd += "<color=#FFA07F>";
-        if(scc<1.0f) scd += "<color=#7FA0FF>";
-        info2.text = scd + scc;
+
+        
+        if(SpeedUEffect && SpeedUEffect)
+        {
+            if((float)f_CurrentSC.GetValue(gamemanager) > 1.05)//UP
+            {
+                if((CurrentSCType != GamePlus.EffectType.SpeedUp) && !isAnimating)
+                {
+                    if(CurrentSCType != GamePlus.EffectType.Nomal)
+                    {
+                        CurrentSCType = GamePlus.EffectType.Nomal;
+                        SCEffectCoroutine = SpeedEffectChange(GamePlus.EffectType.Nomal);
+                        StartCoroutine(SCEffectCoroutine);
+                    }
+                    else
+                    {
+                        //Debug.Log("call_u");
+                        CurrentSCType = GamePlus.EffectType.SpeedUp;
+                        SCEffectCoroutine = SpeedEffectChange(GamePlus.EffectType.SpeedUp);
+                        StartCoroutine(SCEffectCoroutine);
+                    }
+                }
+                
+            }
+            else if((float)f_CurrentSC.GetValue(gamemanager) < 0.95)//DOWN
+            {
+                if((CurrentSCType != GamePlus.EffectType.SpeedDown) && !isAnimating)
+                {
+                    if(CurrentSCType != GamePlus.EffectType.Nomal)
+                    {
+                        CurrentSCType = GamePlus.EffectType.Nomal;
+                        SCEffectCoroutine = SpeedEffectChange(GamePlus.EffectType.Nomal);
+                        StartCoroutine(SCEffectCoroutine);
+                    }
+                    else
+                    {
+                        //Debug.Log("call_d");
+                        CurrentSCType = GamePlus.EffectType.SpeedDown;
+                        SCEffectCoroutine = SpeedEffectChange(GamePlus.EffectType.SpeedDown);
+                        StartCoroutine(SCEffectCoroutine);
+                    }
+                }
+                
+            }
+            else//NOMAL
+            {
+                if((CurrentSCType != GamePlus.EffectType.Nomal) && !isAnimating)
+                {
+                    //Debug.Log("call_n");
+                    CurrentSCType = GamePlus.EffectType.Nomal;
+                    SCEffectCoroutine = SpeedEffectChange(GamePlus.EffectType.Nomal);
+                    StartCoroutine(SCEffectCoroutine);
+                }
+                
+            }
+
+
+        }
+    
         //BGMManager = (AudioSource)f_BGMManager.GetValue(gamemanager);
         
         /*if (BGMManager.isPlaying)
@@ -829,6 +896,71 @@ public class GamePlus : MonoBehaviour
 
         }
 
+    }
+
+
+    enum EffectType
+    {
+        Nomal,
+        SpeedDown,
+        SpeedUp
+        
+    }
+
+    IEnumerator SpeedEffectChange(GamePlus.EffectType type)
+    {
+        isAnimating = true;
+        float duration = 0.1f;
+        float time = 0.0f;
+
+        float baseU = SpeedUEffect.color.a;
+        float baseD = SpeedDEffect.color.a;
+
+        float targetU;
+        float targetD;
+
+        switch (type)
+        {
+            case GamePlus.EffectType.Nomal:
+            targetU = 0.0f;
+            targetD = 0.0f;
+            break;
+
+            case GamePlus.EffectType.SpeedDown:
+            targetU = 0.0f;
+            targetD = 0.12f;
+            break;
+
+            case GamePlus.EffectType.SpeedUp:
+            targetU = 0.12f;
+            targetD = 0.0f;
+            break;
+
+            default:
+            yield break;
+        }
+
+        while(true)
+        {
+            time += Time.deltaTime;
+            if(time < duration)
+            {
+                SpeedUEffect.color = new Color(SpeedUEffect.color.r, SpeedUEffect.color.g, SpeedUEffect.color.b, Mathf.Clamp((baseU + ((targetU - baseU)* time / duration)),Mathf.Min(baseU,targetU),Mathf.Max(baseU,targetU)));
+                SpeedDEffect.color = new Color(SpeedDEffect.color.r, SpeedDEffect.color.g, SpeedDEffect.color.b, Mathf.Clamp((baseD + ((targetD - baseD)* time / duration)),Mathf.Min(baseD,targetD),Mathf.Max(baseD,targetD)));
+            }
+            
+            if(time >= duration)
+            {
+                if(SpeedUEffect.color.a != targetU) SpeedUEffect.color = new Color(SpeedUEffect.color.r, SpeedUEffect.color.g, SpeedUEffect.color.b,targetU);
+                if(SpeedDEffect.color.a != targetD) SpeedDEffect.color = new Color(SpeedDEffect.color.r, SpeedDEffect.color.g, SpeedDEffect.color.b,targetD);
+                //Debug.Log("break");
+                isAnimating = false;
+                yield break;
+            }
+
+            yield return null;
+        }
+        
     }
 
     /*Sprite[] NoteSpriteRead()
